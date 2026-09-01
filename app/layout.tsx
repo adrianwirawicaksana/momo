@@ -1,12 +1,18 @@
 import type { Metadata } from "next";
-import { Fredoka, Nunito } from "next/font/google";
+import { Poppins, Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/shared/Navbar";
+import ConditionalLayout from "@/components/shared/ConditionalLayout";
 
 const fredoka = Fredoka({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-fredoka",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["700"],
+  variable: "--font-poppins",
 });
 
 const nunito = Nunito({
@@ -26,10 +32,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${fredoka.variable} ${nunito.variable} ${poppins.variable}`}>
       <body className="min-h-screen flex flex-col font-[family-name:var(--font-nunito)] antialiased">
-        <Navbar />
-        <main className="flex-1">{children}</main>
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );
