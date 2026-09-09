@@ -98,7 +98,7 @@ export default function AccessibleToast({
             lang="id"
             className={`
         notranslate fixed bottom-0 left-0 right-0 z-50
-        w-full w-screen
+        w-full
         flex items-center justify-between gap-4 px-4 py-3.5 sm:px-8 sm:py-5 lg:px-12 lg:py-6
         shadow-2xl border-t-4 sm:border-t-[6px]
         font-semibold

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Fredoka, Nunito } from "next/font/google";
 import "./globals.css";
 import ConditionalLayout from "@/components/shared/ConditionalLayout";
+import { Toaster } from 'react-hot-toast';
 
 const fredoka = Fredoka({
   subsets: ["latin"],
@@ -33,8 +34,19 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${fredoka.variable} ${nunito.variable} ${poppins.variable}`}>
-      <body className="min-h-screen flex flex-col font-[family-name:var(--font-nunito)] antialiased">
+      <body className="min-h-screen w-full flex flex-col font-[family-name:var(--font-nunito)] antialiased">
         <ConditionalLayout>{children}</ConditionalLayout>
+        {/* Tambahkan Toaster dengan tema gelap agar cocok dengan UI */}
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#1f2937',
+              color: '#fff',
+              border: '1px solid #374151'
+            }
+          }}
+        />
       </body>
     </html>
   );

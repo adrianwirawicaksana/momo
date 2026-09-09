@@ -21,7 +21,7 @@ const MainBox = () => {
                     </div>
 
                     {/* Kiri: Video Container */}
-                    <div className="w-full lg:w-[60%] aspect-video rounded-2xl lg:rounded-3xl overflow-hidden bg-black/60 border-2 border-purple-700 relative shrink-0 shadow-lg z-20">
+                    <div className="w-full lg:flex-[3_3_0%] min-w-0 aspect-video rounded-2xl lg:rounded-3xl overflow-hidden bg-black/60 border-2 border-purple-700 relative shrink-0 shadow-lg z-20">
 
                         {/* SKELETON ANIMATION (Box 1) */}
                         {isVideo1Loading && (
@@ -54,7 +54,7 @@ const MainBox = () => {
                     </div>
 
                     {/* Kanan: Deskripsi Teks */}
-                    <div className="w-full lg:w-[40%] flex flex-col gap-3 sm:gap-4 text-center lg:text-left px-2 sm:px-6 lg:pr-8 z-10 pb-6 lg:pb-0">
+                    <div className="w-full lg:flex-[2_2_0%] min-w-0 flex flex-col gap-3 sm:gap-4 text-center lg:text-left px-2 sm:px-6 lg:pr-8 z-10 pb-6 lg:pb-0">
                         <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white font-[family-name:var(--font-poppins)] uppercase">
                             Navigasi Guru
                         </h2>
@@ -87,7 +87,7 @@ const MainBox = () => {
                     </div>
 
                     {/* Kiri: Video Container */}
-                    <div className="w-full lg:w-[60%] aspect-video rounded-2xl lg:rounded-3xl overflow-hidden bg-black/60 border-2 border-purple-700 relative shrink-0 shadow-lg z-20">
+                    <div className="w-full lg:flex-[3_3_0%] min-w-0 aspect-video rounded-2xl lg:rounded-3xl overflow-hidden bg-black/60 border-2 border-purple-700 relative shrink-0 shadow-lg z-20">
 
                         {/* SKELETON ANIMATION (Box 2) */}
                         {isVideo2Loading && (
@@ -119,7 +119,7 @@ const MainBox = () => {
                     </div>
 
                     {/* Kanan: Deskripsi Teks */}
-                    <div className="w-full lg:w-[40%] flex flex-col gap-3 sm:gap-4 text-center lg:text-left px-2 sm:px-6 lg:pr-8 z-10 pb-6 lg:pb-0">
+                    <div className="w-full lg:flex-[2_2_0%] min-w-0 flex flex-col gap-3 sm:gap-4 text-center lg:text-left px-2 sm:px-6 lg:pr-8 z-10 pb-6 lg:pb-0">
                         <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white font-[family-name:var(--font-poppins)] uppercase">
                             Cara Belajar Siswa
                         </h2>
