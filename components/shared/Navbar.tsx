@@ -26,11 +26,24 @@ const Navbar = () => {
 
     // Handler untuk Logout khusus Guru
     const handleLogout = () => {
+        const expireCookie = (name: string) => {
+            const attributes = `expires=Thu, 01 Jan 1970 00:00:00 GMT; Max-Age=0; path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+            document.cookie = `${name}=; ${attributes}`;
+            document.cookie = `${name}=; ${attributes.replace('path=/', `path=${window.location.pathname}`)}`;
+        };
+
+        expireCookie("auth_token");
+        expireCookie("user_role");
+        expireCookie("guru_profile");
+        localStorage.removeItem("auth_token");
         localStorage.removeItem("user_role");
         localStorage.removeItem("token");
+        localStorage.removeItem("guru_profile");
+        localStorage.removeItem("active_class_id");
         setIsTeacher(false);
         toast.success("Berhasil keluar dari akun guru.");
-        router.push("/login");
+        router.replace("/login");
+        router.refresh();
     };
 
     // Cek apakah di halaman /guide (hanya setelah mounted)

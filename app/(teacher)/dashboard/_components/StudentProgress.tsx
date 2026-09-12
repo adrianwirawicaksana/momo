@@ -1,4 +1,5 @@
-import { Award, BookOpenCheck, CheckCircle2, Clock3, TrendingUp } from 'lucide-react';
+import { Award, BookOpenCheck, CheckCircle2, ChevronDown, Clock3, TrendingUp } from 'lucide-react';
+import type { ClassSummary } from '@/api/kelas/route';
 
 export interface StudentProgressItem {
     name: string;
@@ -27,7 +28,15 @@ const statusStyles = {
     'Perlu Pendampingan': 'bg-amber-500/10 text-amber-300 border-amber-500/20',
 };
 
-export function StudentProgress({ data }: { data: StudentProgressData | null }) {
+interface StudentProgressProps {
+    data: StudentProgressData | null;
+    classes: ClassSummary[];
+    selectedClassId: number | null;
+    isLoadingClass: boolean;
+    onClassChange: (classId: number) => void;
+}
+
+export function StudentProgress({ data, classes, selectedClassId, isLoadingClass, onClassChange }: StudentProgressProps) {
     const students = data?.students ?? [];
     const hasData = Boolean(data);
 
@@ -39,9 +48,15 @@ export function StudentProgress({ data }: { data: StudentProgressData | null }) 
                     <h2 className="mt-1 text-2xl font-bold text-white">Progress Hasil Pembelajaran</h2>
                     <p className="mt-1 text-sm text-slate-400">Pantau perkembangan anak dan temukan materi yang masih perlu diperkuat.</p>
                 </div>
-                <div className="flex items-center gap-2 self-start rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-300 sm:self-auto">
-                    <BookOpenCheck className="h-4 w-4 text-blue-400" />
-                    Periode: {data?.period ?? 'Belum tersedia'}
+                <div className="flex flex-col gap-2 self-start sm:items-end sm:self-auto">
+                    <label className="mb-1.5 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500" htmlFor="progress-class-select">Kelas aktif</label>
+                    <div className="relative">
+                        <select id="progress-class-select" value={selectedClassId ?? ''} onChange={(event) => onClassChange(Number(event.target.value))} disabled={isLoadingClass || classes.length === 0} className="min-w-56 appearance-none rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 pr-10 text-sm text-slate-200 outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-60">
+                            {classes.length === 0 ? <option value="">Belum ada kelas</option> : classes.map((item) => <option key={item.id} value={item.id}>{item.nama_kelas} ({item.kode_kelas})</option>)}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-slate-400"><BookOpenCheck className="h-4 w-4 text-blue-400" /> Periode: {data?.period ?? 'Belum tersedia'}</div>
                 </div>
             </div>
 
@@ -68,8 +83,8 @@ export function StudentProgress({ data }: { data: StudentProgressData | null }) 
                         <tbody className="divide-y divide-slate-700/70">
                             {students.length === 0 ? <tr><td colSpan={5} className="px-6 py-16 text-center text-slate-500">Belum ada data hasil pembelajaran siswa.</td></tr> : students.map((student) => <tr key={student.name} className="transition-colors hover:bg-slate-700/20">
                                 <td className="whitespace-nowrap px-6 py-4"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-500/15 text-xs font-bold text-blue-300">{student.initials}</div><span className="font-semibold text-slate-200">{student.name}</span></div></td>
-                                <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-2 w-32 overflow-hidden rounded-full bg-slate-700"><div className={`h-full rounded-full ${student.progress >= 80 ? 'bg-emerald-400' : student.progress >= 60 ? 'bg-blue-400' : 'bg-amber-400'}`} style={{ width: `${student.progress}%` }} /></div><div><p className="font-semibold text-slate-200">{student.progress}%</p><p className="text-xs text-slate-500">{student.completed}</p></div></div></td>
-                                <td className="px-6 py-4 font-semibold text-slate-200">{student.score}/100</td>
+                                <td className="px-6 py-4"><div className="flex items-center gap-3"><div className="h-2 w-32 overflow-hidden rounded-full bg-slate-700"><div className={`h-full rounded-full ${student.progress >= 80 ? 'bg-emerald-400' : student.progress >= 60 ? 'bg-blue-400' : 'bg-amber-400'}`} style={{ width: `${student.progress}%` }} /></div><div><p className="font-semibold text-slate-200">{student.progress > 0 ? `${student.progress}%` : 'Belum tersedia'}</p><p className="text-xs text-slate-500">{student.completed}</p></div></div></td>
+                                <td className="px-6 py-4 font-semibold text-slate-200">{student.score > 0 ? `${student.score}/100` : 'Belum tersedia'}</td>
                                 <td className="whitespace-nowrap px-6 py-4 text-slate-400">{student.lastActivity}</td>
                                 <td className="px-6 py-4"><span className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-semibold ${statusStyles[student.status]}`}>{student.status}</span></td>
                             </tr>)}

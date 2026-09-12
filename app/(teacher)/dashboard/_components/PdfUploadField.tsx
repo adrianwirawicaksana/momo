@@ -4,11 +4,12 @@ import { FileCheck, UploadCloud, X } from 'lucide-react';
 
 interface PdfUploadFieldProps {
     file: File | null;
+    maxSizeMb?: number;
     onFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onRemove: () => void;
 }
 
-export function PdfUploadField({ file, onFileChange, onRemove }: PdfUploadFieldProps) {
+export function PdfUploadField({ file, maxSizeMb = 10, onFileChange, onRemove }: PdfUploadFieldProps) {
     if (!file) {
         return (
             <label className="flex flex-col items-center justify-center w-full h-36 border-2 border-dashed border-slate-600 hover:border-blue-500 rounded-2xl cursor-pointer bg-slate-900/60 hover:bg-slate-900/90 transition-all p-4 group">
@@ -16,8 +17,8 @@ export function PdfUploadField({ file, onFileChange, onRemove }: PdfUploadFieldP
                 <p className="text-xs text-slate-300 text-center font-medium">
                     Klik untuk mengunggah atau <span className="text-blue-400">drag & drop</span>
                 </p>
-                <p className="text-[11px] text-slate-500 mt-1">Berkas PDF (Maks. 10 MB)</p>
-                <input type="file" accept="application/pdf" onChange={onFileChange} className="hidden" />
+                <p className="text-[11px] text-slate-500 mt-1">Berkas PDF (Maks. {maxSizeMb} MB)</p>
+                <input id="pdf-file" name="file" type="file" accept="application/pdf" required onChange={onFileChange} className="hidden" />
             </label>
         );
     }

@@ -97,9 +97,9 @@ export default function AccessibleToast({
             aria-live="assertive"
             lang="id"
             className={`
-        notranslate fixed bottom-0 left-0 right-0 z-50
-        w-full
-        flex items-center justify-between gap-4 px-4 py-3.5 sm:px-8 sm:py-5 lg:px-12 lg:py-6
+        notranslate fixed bottom-4 left-1/2 z-50
+        w-fit max-w-[calc(100vw-1.5rem)] -translate-x-1/2
+        flex items-center justify-between gap-4 overflow-hidden rounded-2xl px-4 py-3.5 sm:bottom-6 sm:px-8 sm:py-5 lg:px-12 lg:py-6
         shadow-2xl border-t-4 sm:border-t-[6px]
         font-semibold
         font-[family-name:var(--font-fredoka)]
@@ -107,8 +107,8 @@ export default function AccessibleToast({
         ${isExiting ? 'animate-toast-out' : 'animate-toast-in'}
       `}
         >
-            <div className="max-w-7xl w-full mx-auto flex items-center justify-between gap-4 sm:gap-6">
-                <div className="flex items-center gap-3.5 sm:gap-5 flex-grow">
+            <div className="flex w-fit max-w-full min-w-0 items-center justify-between gap-4 sm:gap-6">
+                <div className="flex min-w-0 items-center gap-3.5 sm:gap-5">
                     {/* Logo Icon Responsif */}
                     <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 shrink-0 flex items-center justify-center">
                         <Image
@@ -121,8 +121,8 @@ export default function AccessibleToast({
                     </div>
 
                     {/* Teks Pesan - Responsif All Device */}
-                    <p className="flex-grow leading-snug min-h-[1.5em] flex items-center whitespace-pre-line text-base sm:text-xl lg:text-2xl tracking-wide">
-                        <span>{displayedText}</span>
+                    <p className="min-w-0 max-w-full break-words leading-snug min-h-[1.5em] flex items-center whitespace-pre-line text-base sm:text-xl lg:text-2xl tracking-wide">
+                        <span className="break-words">{displayedText}</span>
                         {isTyping && (
                             <span className="inline-block w-2 sm:w-2.5 lg:w-3 h-4 sm:h-6 lg:h-7 ml-1 bg-white animate-pulse" />
                         )}

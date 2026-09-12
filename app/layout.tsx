@@ -43,7 +43,10 @@ export default function RootLayout({
             style: {
               background: '#1f2937',
               color: '#fff',
-              border: '1px solid #374151'
+              border: '1px solid #374151',
+              maxWidth: 'min(420px, calc(100vw - 32px))',
+              whiteSpace: 'normal',
+              overflowWrap: 'anywhere',
             }
           }}
         />
