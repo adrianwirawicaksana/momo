@@ -8,6 +8,7 @@ import { PdfUploadField } from './PdfUploadField';
 interface MateriGeneratorProps {
     modules: ModulSummary[];
     moduleId: number | null;
+    moduleName: string;
     file: File | null;
     isGenerating: boolean;
     generatedMateri: ModulMaterial[];
@@ -22,6 +23,7 @@ interface MateriGeneratorProps {
 export function MateriGenerator({
     modules,
     moduleId,
+    moduleName,
     file,
     isGenerating,
     generatedMateri,
@@ -40,7 +42,7 @@ export function MateriGenerator({
         }
 
         const content = generatedMateri.map((item) => `<h2>${item.judul.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</h2><div>${item.konten.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`).join('');
-        printWindow.document.write(`<!doctype html><html><head><title>Materi Pembelajaran</title><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#172033;padding:40px;white-space:pre-wrap}h1{font-size:24px;border-bottom:1px solid #cbd5e1;padding-bottom:12px}h2{font-size:20px;margin-top:24px}@media print{body{padding:0}}</style></head><body><h1>Materi Pembelajaran</h1>${content}</body></html>`);
+        printWindow.document.write(`<!doctype html><html><head><title>Materi - ${moduleName || 'Modul'}</title><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#172033;padding:40px;white-space:pre-wrap}h1{font-size:24px;border-bottom:1px solid #cbd5e1;padding-bottom:12px}h2{font-size:20px;margin-top:24px}@media print{body{padding:0}}</style></head><body><h1>Materi - ${moduleName || 'Modul'}</h1>${content}</body></html>`);
         printWindow.document.close();
         printWindow.focus();
         printWindow.print();
@@ -70,7 +72,7 @@ export function MateriGenerator({
                         <label className="block text-sm font-medium text-slate-300 mb-1.5">Unggah Dokumen PDF</label>
                         <PdfUploadField file={file} maxSizeMb={25} onFileChange={onFileChange} onRemove={onFileRemove} />
                     </div>
-                    <button type="submit" disabled={isGenerating || !file} className="w-full py-3 px-4 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold rounded-xl shadow-lg transition-all flex justify-center items-center gap-2 disabled:opacity-50 cursor-pointer mt-4">
+                    <button type="submit" disabled={isGenerating || !file} className="game-button game-button-blue w-full py-3 px-4 rounded-xl flex justify-center items-center gap-2 disabled:opacity-50 cursor-pointer mt-4">
                         {isGenerating ? <><RefreshCw className="w-5 h-5 animate-spin" /> Mengekstrak PDF & Generasi...</> : <><Sparkles className="w-5 h-5" /> Generate Materi dari PDF</>}
                     </button>
                 </form>
@@ -80,8 +82,8 @@ export function MateriGenerator({
                 <h3 className="text-lg font-bold text-white mb-4 border-b border-slate-700 pb-3 flex items-center justify-between">
                     <span>Hasil Rangkuman Materi</span>
                     {generatedMateri.length > 0 && <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
-                        <button type="button" onClick={handleDownload} className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-blue-500 sm:min-h-11 sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"><Download className="h-4 w-4 sm:h-5 sm:w-5" /> Download PDF</button>
-                        <button type="button" onClick={onSave} disabled={isSaving} className="flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-11 sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"><Save className="h-4 w-4 sm:h-5 sm:w-5" /> {isSaving ? 'Menyimpan...' : 'Simpan ke Kelas'}</button>
+                        <button type="button" onClick={handleDownload} className="game-button game-button-blue flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm sm:min-h-11 sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"><Download className="h-4 w-4 sm:h-5 sm:w-5" /> Download PDF</button>
+                        <button type="button" onClick={onSave} disabled={isSaving} className="game-button game-button-yellow flex min-h-10 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-11 sm:gap-2 sm:rounded-xl sm:px-3.5 sm:py-2.5"><Save className="h-4 w-4 sm:h-5 sm:w-5" /> {isSaving ? 'Menyimpan...' : 'Simpan ke Kelas'}</button>
                     </div>}
                 </h3>
                 {generatedMateri.length > 0 ? <div className="flex-1 space-y-5 overflow-y-auto rounded-2xl border border-slate-700/50 bg-slate-900/60 p-5"><p className="text-xs font-semibold uppercase tracking-wider text-emerald-400">{generatedMateri.length} bagian materi</p>{generatedMateri.map((item) => <section key={item.id} className="space-y-2"><h4 className="text-lg font-bold text-white">{item.judul}</h4><div className="whitespace-pre-wrap font-sans leading-relaxed text-slate-300">{item.konten}</div></section>)}</div> : <div className="flex-1 flex flex-col items-center justify-center text-center text-slate-500 p-8"><BookOpen className="w-12 h-12 mb-3 stroke-1" /><p>Unggah PDF dan tekan button generate untuk menampilkan hasil materi.</p></div>}

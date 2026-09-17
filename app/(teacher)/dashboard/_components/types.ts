@@ -6,4 +6,6 @@ export interface QuestionItem {
     explanation?: string;
 }
 
+export type QuestionType = 'harian' | 'uts' | 'uas';
+
 export type DashboardTab = 'materi' | 'soal' | 'buat-kelas' | 'buat-modul' | 'kelola-kelas' | 'progress';

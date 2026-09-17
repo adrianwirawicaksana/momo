@@ -8,9 +8,9 @@ import { MateriGenerator } from './MateriGenerator';
 import { ModuleCreator } from './ModuleCreator';
 import { SoalGenerator } from './SoalGenerator';
 import { StudentProgress } from './StudentProgress';
-import type { DashboardTab, QuestionItem } from './types';
+import type { DashboardTab, QuestionItem, QuestionType } from './types';
 
-interface DashboardContentProps {
+export interface DashboardContentProps {
     activeTab: DashboardTab;
     classes: ClassSummary[];
     classDetails: Record<number, ClassDetail>;
@@ -33,9 +33,10 @@ interface DashboardContentProps {
     isGeneratingMateri: boolean;
     isSavingMateri: boolean;
     generatedMateri: ModulMaterial[];
+    materiModuleName: string;
     soalModuleId: number | null;
     soalPdfFile: File | null;
-    questionCount: number;
+    questionType: QuestionType;
     isGeneratingSoal: boolean;
     generatedQuestions: QuestionItem[];
     onClassChange: (id: number) => void;
@@ -58,9 +59,11 @@ interface DashboardContentProps {
     onSaveMateri: () => void;
     onSoalFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     onSoalFileRemove: () => void;
-    onQuestionCountChange: (count: number) => void;
+    onQuestionTypeChange: (type: QuestionType) => void;
     onSoalModuleChange: (id: number) => void;
     onGenerateSoal: (event: React.FormEvent) => void;
+    onSaveSoal: () => void;
+    onDownloadSoal: () => void;
 }
 
 export function DashboardContent({
@@ -86,9 +89,10 @@ export function DashboardContent({
     isGeneratingMateri,
     isSavingMateri,
     generatedMateri,
+    materiModuleName,
     soalModuleId,
     soalPdfFile,
-    questionCount,
+    questionType,
     isGeneratingSoal,
     generatedQuestions,
     onClassChange,
@@ -111,9 +115,11 @@ export function DashboardContent({
     onSaveMateri,
     onSoalFileChange,
     onSoalFileRemove,
-    onQuestionCountChange,
+    onQuestionTypeChange,
     onSoalModuleChange,
     onGenerateSoal,
+    onSaveSoal,
+    onDownloadSoal,
 }: DashboardContentProps) {
     const progressData = classDetail ? {
         className: classDetail.nama_kelas,
@@ -131,10 +137,10 @@ export function DashboardContent({
     } : null;
 
     if (activeTab === 'materi') {
-        return <MateriGenerator modules={modules} moduleId={materiModuleId} file={materiPdfFile} isGenerating={isGeneratingMateri} isSaving={isSavingMateri} generatedMateri={generatedMateri} onFileChange={onMateriFileChange} onFileRemove={onMateriFileRemove} onModuleChange={onMateriModuleChange} onGenerate={onGenerateMateri} onSave={onSaveMateri} />;
+        return <MateriGenerator modules={modules} moduleId={materiModuleId} moduleName={materiModuleName} file={materiPdfFile} isGenerating={isGeneratingMateri} isSaving={isSavingMateri} generatedMateri={generatedMateri} onFileChange={onMateriFileChange} onFileRemove={onMateriFileRemove} onModuleChange={onMateriModuleChange} onGenerate={onGenerateMateri} onSave={onSaveMateri} />;
     }
     if (activeTab === 'soal') {
-        return <SoalGenerator modules={modules} moduleId={soalModuleId} file={soalPdfFile} questionCount={questionCount} isGenerating={isGeneratingSoal} questions={generatedQuestions} onFileChange={onSoalFileChange} onFileRemove={onSoalFileRemove} onQuestionCountChange={onQuestionCountChange} onModuleChange={onSoalModuleChange} onGenerate={onGenerateSoal} />;
+        return <SoalGenerator modules={modules} moduleId={soalModuleId} file={soalPdfFile} questionType={questionType} isGenerating={isGeneratingSoal} questions={generatedQuestions} onFileChange={onSoalFileChange} onFileRemove={onSoalFileRemove} onQuestionTypeChange={onQuestionTypeChange} onModuleChange={onSoalModuleChange} onGenerate={onGenerateSoal} onSave={onSaveSoal} onDownload={onDownloadSoal} />;
     }
     if (activeTab === 'buat-kelas') {
         return <ClassCreator classCode={generatedClassCode} className={className} subject={subject} generatedClassName={generatedClassName} generatedSubject={generatedSubject} isCreatingClass={isCreatingClass} onClassNameChange={onClassNameChange} onSubjectChange={onSubjectChange} onCopyCode={() => onCopyClassCode(generatedClassCode)} onCreateClass={onCreateClass} />;
@@ -143,7 +149,7 @@ export function DashboardContent({
         return <ModuleCreator classes={classes} modules={modules} name={moduleName} description={moduleDescription} classId={moduleClassId} isCreating={isProcessingClass} onNameChange={onModuleNameChange} onDescriptionChange={onModuleDescriptionChange} onClassChange={onModuleClassChange} onCreate={onCreateModule} onUpdate={onUpdateModule} onDelete={onDeleteModule} />;
     }
     if (activeTab === 'kelola-kelas') {
-        return <ClassList classes={classes} selectedClassId={selectedClassId} classDetails={classDetails} isLoading={isLoadingClass} onSelect={onClassChange} onUpdate={onUpdateClass} onDelete={onDeleteClass} onCopy={onCopyClassCode} />;
+        return <ClassList classes={classes} selectedClassId={selectedClassId} classDetails={classDetails} isLoading={isLoadingClass} onSelect={onClassChange} onUpdate={onUpdateClass} onDelete={onDeleteClass} onUpdateModule={onUpdateModule} onDeleteModule={onDeleteModule} onCopy={onCopyClassCode} />;
     }
     return <StudentProgress classes={classes} selectedClassId={selectedClassId} isLoadingClass={isLoadingClass} onClassChange={onClassChange} data={progressData} />;
 }

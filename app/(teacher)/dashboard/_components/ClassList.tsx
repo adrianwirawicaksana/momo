@@ -13,6 +13,8 @@ interface ClassListProps {
     onSelect: (id: number) => void;
     onUpdate: (id: number, payload: UpdateClassPayload) => Promise<void>;
     onDelete: (id: number) => Promise<void>;
+    onUpdateModule: (id: number, payload: { nama?: string; deskripsi?: string }) => Promise<void>;
+    onDeleteModule: (id: number) => Promise<void>;
     onCopy: (code: string) => void;
 }
 
@@ -129,14 +131,17 @@ export function ClassList({ classes, selectedClassId, classDetails, isLoading, o
                         <h4 className="text-sm font-bold text-slate-200">Modul dan materi tersimpan</h4>
                         {isLoading && !classDetails[item.id] ? <div className="mt-3 flex items-center gap-2 text-sm text-slate-400"><LoaderCircle className="h-4 w-4 animate-spin" /> Memuat materi...</div> : classDetails[item.id]?.modul.length ? <div className="mt-3 space-y-2">{classDetails[item.id].modul.map((module) => {
                             const material = module.materi;
+                            const hasQuestions = Boolean(module.soal?.length);
                             return <div key={module.id} className="rounded-xl border border-slate-700 bg-slate-950/40 p-3">
-                                <div className="flex items-center justify-between gap-3">
-                                    <div className="min-w-0">
+                                <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <p className="truncate font-semibold text-blue-200">{module.nama || module.judul || `Modul ${module.id}`}</p>
-                                        <p className="mt-1 text-sm text-slate-500">{material ? 'Materi tersedia' : 'Materi belum tersedia'}</p>
+                                        <span className="rounded-full bg-slate-800 px-2 py-0.5 text-xs text-slate-400">{material && hasQuestions ? 'Materi dan soal tersedia' : material ? 'Materi tersedia' : hasQuestions ? 'Soal tersedia' : 'Materi atau soal belum tersedia.'}</span>
                                     </div>
-                                    {Boolean(material) && <Link href={`/dashboard/kelola-kelas/materi/${module.id}`} className="shrink-0 rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-blue-500">Lihat Detail</Link>}
                                 </div>
+                                {(Boolean(material) || hasQuestions) && <div className="mt-3 flex justify-end">
+                                    <Link href={hasQuestions && !material ? `/dashboard/kelola-kelas/soal/${module.id}` : `/dashboard/kelola-kelas/materi/${module.id}`} className="game-button game-button-blue w-full rounded-lg px-3 py-2 text-center text-xs font-semibold sm:w-auto">{hasQuestions && !material ? 'Kelola Soal' : material && hasQuestions ? 'Kelola Materi & Soal' : 'Kelola Materi'}</Link>
+                                </div>}
                             </div>;
                         })}</div> : <p className="mt-3 text-sm text-slate-500">Belum ada modul yang terikat ke kelas ini.</p>}
                     </div>

@@ -51,7 +51,7 @@ export function DashboardTabs({ activeTab }: DashboardTabsProps) {
                         key={id}
                         href={href}
                         aria-current={activeTab === id ? 'page' : undefined}
-                        className={`flex min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-center text-xs font-medium transition-all cursor-pointer sm:gap-2 sm:px-5 sm:text-sm lg:min-h-12 lg:shrink lg:justify-start lg:px-4 lg:text-left ${activeTab === id
+                        className={`flex min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-center font-[family-name:var(--font-poppins)] text-xs font-bold transition-all cursor-pointer sm:gap-2 sm:px-5 sm:text-sm lg:min-h-12 lg:shrink lg:justify-start lg:px-4 lg:text-left ${activeTab === id
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                             }`}
@@ -61,7 +61,7 @@ export function DashboardTabs({ activeTab }: DashboardTabsProps) {
                     </Link>
                 ))}
             </div>
-            <button type="button" onClick={handleLogout} className="flex min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 text-xs font-medium text-red-300 transition hover:bg-red-500/15 hover:text-red-200 sm:gap-2 sm:px-5 sm:text-sm lg:mt-auto lg:min-h-12 lg:shrink lg:justify-start lg:px-4">
+            <button type="button" onClick={handleLogout} className="game-button game-button-danger flex min-h-11 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-3 py-2.5 font-[family-name:var(--font-poppins)] text-xs font-bold sm:gap-2 sm:px-5 sm:text-sm lg:mt-auto lg:min-h-12 lg:shrink lg:justify-start lg:px-4">
                 <LogOut className="h-4 w-4" />
                 Logout
             </button>

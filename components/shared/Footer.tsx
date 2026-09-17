@@ -5,7 +5,7 @@ const Footer = () => {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="w-full bg-gray-800 border-t-2 border-gray-900 text-gray-300 py-6 px-4 sm:px-8 z-40 relative">
+        <footer className="w-full bg-gray-800 border-t-2 border-gray-900 text-gray-300 py-6 px-4 sm:px-8 z-40 relative print:hidden">
             <div className="max-w-5xl lg:max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
 
                 {/* --- KIRI: COPYRIGHT MOMO APP --- */}

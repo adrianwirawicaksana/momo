@@ -1,4 +1,5 @@
 import { apiClient } from '../client/route';
+import type { ModulSoal } from '../modul/route';
 
 export interface CreateClassPayload {
   nama: string;
@@ -38,6 +39,8 @@ export interface ClassModule {
   guru_id: number;
   nama?: string;
   judul?: string;
+  materi?: unknown;
+  soal?: ModulSoal[];
   [key: string]: unknown;
 }
 

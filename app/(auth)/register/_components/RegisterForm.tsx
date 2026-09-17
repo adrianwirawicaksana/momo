@@ -284,7 +284,7 @@ export default function RegisterForm() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors focus:outline-none"
+                                    className="plain-button absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 transition-colors focus:outline-none"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -332,7 +332,7 @@ export default function RegisterForm() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-3 px-4 text-base font-[family-name:var(--font-poppins)] bg-linear-to-t from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+                        className="game-button game-button-blue w-full py-3 px-4 text-base rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer mt-2 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
                     >
                         {isLoading ? (
                             <span className="flex items-center gap-2">

@@ -198,7 +198,7 @@ export default function Page() {
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || 'Gagal masuk. Periksa email dan kata sandi Anda.');
+                throw new Error(result.error || result.message || 'Gagal masuk. Periksa email dan kata sandi Anda.');
             }
 
             // Simpan Token JWT & Profil Guru ke LocalStorage + Cookie untuk middleware
@@ -217,7 +217,7 @@ export default function Page() {
 
             const params = new URLSearchParams(window.location.search);
             const redirectTo = params.get('redirect');
-            router.push(redirectTo && redirectTo.startsWith('/') ? redirectTo : '/dashboard');
+            window.location.replace(redirectTo && redirectTo.startsWith('/') ? redirectTo : '/dashboard');
 
         } catch (error: any) {
             toast.error(error.message || 'Terjadi kesalahan pada server');
@@ -301,7 +301,7 @@ export default function Page() {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3.5 text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
+                                className="plain-button absolute right-3.5 text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
                                 title={showPassword ? "Sembunyikan Kata Sandi" : "Tampilkan Kata Sandi"}
                             >
                                 {showPassword ? (
@@ -329,7 +329,7 @@ export default function Page() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full py-3 px-4 text-lg font-[family-name:var(--font-poppins)] bg-linear-to-t from-blue-600 to-blue-500 text-white font-medium rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all cursor-pointer flex justify-center items-center gap-2 disabled:opacity-50"
+                        className="game-button game-button-blue w-full py-3 px-4 text-lg rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 cursor-pointer flex justify-center items-center gap-2 disabled:opacity-50"
                     >
                         {isLoading ? (
                             <>

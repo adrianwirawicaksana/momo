@@ -53,7 +53,7 @@ const Navbar = () => {
     const buttonHref = isGuidePage ? "/study" : "/guide";
 
     return (
-        <nav className="sticky top-0 w-full h-20 bg-gray-800 border-b-2 border-gray-900 z-50">
+        <nav className="sticky top-0 w-full h-20 bg-gray-800 border-b-2 border-gray-900 z-50 print:hidden">
             <div className="h-full w-full max-w-5xl lg:max-w-6xl mx-auto flex min-w-0 items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
 
                 {/* Logo & Brand Name */}
@@ -101,7 +101,7 @@ const Navbar = () => {
                             <button
                                 onClick={handleLogout}
                                 title="Keluar Akun"
-                                className="p-2.5 rounded-xl bg-gray-700/80 hover:bg-red-600/20 border border-gray-600 hover:border-red-500/50 text-gray-300 hover:text-red-400 transition-all cursor-pointer flex items-center justify-center"
+                                className="game-button game-button-danger p-2.5 rounded-xl cursor-pointer flex items-center justify-center"
                             >
                                 <LogOut className="w-5 h-5" />
                             </button>

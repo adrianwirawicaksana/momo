@@ -46,15 +46,22 @@ export interface ModulMaterialMutationResponse {
   data: ModulMaterial;
 }
 
+export type ModulQuestionType = 'harian' | 'uts' | 'uas';
+
 export interface ModulSoal {
   id: number;
   modul_id: number;
-  jenis: 'harian' | 'uts' | 'uas';
+  jenis: ModulQuestionType;
   pertanyaan: string;
   pilihan_a: string;
   pilihan_b: string;
   pilihan_c: string;
   pilihan_d: string;
+}
+
+export interface ModulQuestionMutationResponse {
+  message: string;
+  data: ModulSoal;
 }
 
 export interface ModulUploadResponse {
@@ -63,6 +70,72 @@ export interface ModulUploadResponse {
   jumlah?: number;
   message?: string;
 }
+
+export interface ModulQuestionsResponse {
+  jenis: ModulSoal['jenis'];
+  jumlah: number;
+  data: ModulSoal[];
+}
+
+export const getModuleQuestionList = async (
+  moduleId: number,
+  jenis?: ModulSoal['jenis'],
+  token?: string,
+): Promise<ModulSoal[]> => {
+  const query = jenis ? `?jenis=${encodeURIComponent(jenis)}` : '';
+  const response = await apiClient.get<{ jumlah?: number; data?: ModulSoal[] } | ModulSoal[]>(`/api/v1/modul/${moduleId}/soal/list${query}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+  });
+
+  const payload = Array.isArray(response.data) ? response.data : response.data.data;
+  return Array.isArray(payload) ? payload : [];
+};
+
+export const createManualQuestion = async (
+  moduleId: number,
+  payload: {
+    jenis: ModulSoal['jenis'];
+    pertanyaan: string;
+    pilihan_a: string;
+    pilihan_b: string;
+    pilihan_c: string;
+    pilihan_d: string;
+    kunci_jawaban: 'A' | 'B' | 'C' | 'D';
+  },
+  token: string,
+): Promise<ModulSoal> => {
+  const response = await apiClient.post<ModulQuestionMutationResponse>(`/api/v1/modul/${moduleId}/soal/manual`, payload, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return response.data.data;
+};
+
+export const updateQuestion = async (
+  questionId: number,
+  payload: {
+    pertanyaan: string;
+    pilihan_a: string;
+    pilihan_b: string;
+    pilihan_c: string;
+    pilihan_d: string;
+    kunci_jawaban: 'A' | 'B' | 'C' | 'D';
+    jenis?: ModulSoal['jenis'];
+  },
+  token: string,
+): Promise<ModulSoal> => {
+  const response = await apiClient.put<ModulQuestionMutationResponse>(`/api/v1/soal/${questionId}`, payload, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return response.data.data;
+};
+
+export const deleteQuestion = async (questionId: number, token: string): Promise<void> => {
+  await apiClient.delete(`/api/v1/soal/${questionId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
 
 export const getModules = async (token: string): Promise<ModulSummary[]> => {
   const response = await apiClient.get<ModulSummary[] | { data: ModulSummary[] }>('/api/v1/modul', {
@@ -134,7 +207,6 @@ export const uploadModuleMaterial = async (
   const response = await apiClient.post<ModulMaterialResponse>(`/api/v1/modul/${moduleId}/materi`, formData, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
     },
   });
 
@@ -191,19 +263,28 @@ export const uploadModuleQuestions = async (
   token: string,
 ): Promise<ModulUploadResponse> => {
   const formData = new FormData();
-  formData.append('file', file);
+  formData.append('file', file, file.name);
 
   const response = await apiClient.post<ModulUploadResponse>(
-    `/api/v1/modul/${moduleId}/soal`,
+    `/api/v1/modul/${moduleId}/soal?jenis=${encodeURIComponent(jenis)}`,
     formData,
     {
-      params: { jenis },
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { Authorization: `Bearer ${token}` },
     },
   );
-
   return response.data;
+};
+
+export const getModuleQuestions = async (
+  moduleId: number,
+  jenis: ModulSoal['jenis'],
+  token: string,
+): Promise<ModulSoal[]> => {
+  const response = await apiClient.get<ModulDetail>(`/api/v1/modul/${moduleId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  return Array.isArray(response.data.soal)
+    ? response.data.soal.filter((item) => item.jenis === jenis)
+    : [];
 };

@@ -5,41 +5,89 @@ import Image from 'next/image';
 import toast from 'react-hot-toast';
 import { Brain, Mic } from 'lucide-react';
 
+const INITIAL_SPEECH_TEXT = 'Klik kiri layar untuk mendengar, klik kanan layar untuk bicara!';
+const THINKING_SPEECH_TEXT = 'Saya sedang berpikir...';
+
+type RecognitionResultLike = {
+    isFinal: boolean;
+    0: {
+        transcript: string;
+    };
+};
+
+type RecognitionEventLike = {
+    resultIndex: number;
+    results: ArrayLike<RecognitionResultLike>;
+};
+
+type RecognitionErrorLike = {
+    error: string;
+};
+
+type SpeechRecognitionInstance = {
+    continuous: boolean;
+    interimResults: boolean;
+    lang: string;
+    start: () => void;
+    stop: () => void;
+    abort: () => void;
+    onstart: (() => void) | null;
+    onresult: ((event: RecognitionEventLike) => void) | null;
+    onerror: ((event: RecognitionErrorLike) => void) | null;
+    onend: (() => void) | null;
+};
+
+type SpeechRecognitionConstructor = new () => SpeechRecognitionInstance;
+
 export default function JoinClassPage() {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
-    const [speechText, setSpeechText] = useState('Klik kiri layar untuk mendengar, klik kanan layar untuk bicara!');
+    const [speechText, setSpeechText] = useState(() => {
+        if (typeof window !== 'undefined' && !window.isSecureContext) {
+            return 'Fitur suara butuh koneksi HTTPS / localhost.';
+        }
+        return INITIAL_SPEECH_TEXT;
+    });
     const [displayedText, setDisplayedText] = useState('');
     const isReasoning = !isListening && Boolean(transcript.trim());
+    const statusColorClass = isListening
+        ? 'game-button-red'
+        : isReasoning
+            ? 'game-button-yellow'
+            : 'game-button-blue';
 
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
     const transcriptRef = useRef('');
+    const finalTranscriptRef = useRef('');
+    const interimTranscriptRef = useRef('');
     const isStartingRef = useRef(false);
+    const lastSpokenSpeechTextRef = useRef('');
+    const currentMessage = isListening ? speechText : isReasoning ? THINKING_SPEECH_TEXT : transcript.trim() || speechText;
+    const currentVoiceMessage = isListening ? speechText : isReasoning ? THINKING_SPEECH_TEXT : currentMessage;
 
     // Efek mengetik otomatis (Typewriter effect)
     useEffect(() => {
-        const fullText = transcript ? `"${transcript}"` : speechText;
-        setDisplayedText('');
+        const fullText = currentMessage;
 
         let index = 0;
         const timer = setInterval(() => {
             if (index < fullText.length) {
-                setDisplayedText((prev) => prev + fullText.charAt(index));
-                index++;
+                index += 1;
+                setDisplayedText(fullText.slice(0, index));
             } else {
                 clearInterval(timer);
             }
         }, 25);
 
         return () => clearInterval(timer);
-    }, [transcript, speechText]);
+    }, [currentMessage]);
 
     const safeStart = () => {
         if (!recognitionRef.current || isStartingRef.current) return;
         try {
             isStartingRef.current = true;
             recognitionRef.current.start();
-        } catch (err) {
+        } catch {
             isStartingRef.current = false;
             toast.error('Gagal memulai rekaman, coba klik kanan lagi.');
         }
@@ -48,19 +96,21 @@ export default function JoinClassPage() {
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
-        if (!window.isSecureContext) {
-            setSpeechText('Fitur suara butuh koneksi HTTPS / localhost.');
-        }
-
         const SpeechRecognition =
-            (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+            (window as typeof window & {
+                SpeechRecognition?: SpeechRecognitionConstructor;
+                webkitSpeechRecognition?: SpeechRecognitionConstructor;
+            }).SpeechRecognition ||
+            (window as typeof window & {
+                SpeechRecognition?: SpeechRecognitionConstructor;
+                webkitSpeechRecognition?: SpeechRecognitionConstructor;
+            }).webkitSpeechRecognition;
 
         if (!SpeechRecognition) {
-            setSpeechText('Browser kamu belum mendukung fitur rekam suara.');
             return;
         }
 
-        const recognition = new SpeechRecognition();
+        const recognition: SpeechRecognitionInstance = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = 'id-ID';
@@ -71,27 +121,34 @@ export default function JoinClassPage() {
             setSpeechText('Aku sedang mendengarkanmu, bicaralah...');
         };
 
-        recognition.onresult = (event: any) => {
+        recognition.onresult = (event: RecognitionEventLike) => {
             let interimTranscript = '';
             let finalTranscript = '';
 
             for (let i = event.resultIndex; i < event.results.length; ++i) {
+                const resultText = event.results[i][0].transcript.trim();
                 if (event.results[i].isFinal) {
-                    finalTranscript += event.results[i][0].transcript;
+                    finalTranscript += (finalTranscript ? ' ' : '') + resultText;
                 } else {
-                    interimTranscript += event.results[i][0].transcript;
+                    interimTranscript += (interimTranscript ? ' ' : '') + resultText;
                 }
             }
 
-            const currentText = finalTranscript || interimTranscript;
+            if (finalTranscript) {
+                finalTranscriptRef.current = `${finalTranscriptRef.current} ${finalTranscript}`.replace(/\s+/g, ' ').trim();
+                transcriptRef.current = finalTranscriptRef.current;
+                setTranscript(finalTranscriptRef.current);
+            }
 
-            if (currentText) {
-                transcriptRef.current = currentText;
-                setTranscript(currentText);
+            if (interimTranscript) {
+                interimTranscriptRef.current = interimTranscript;
+                const combinedText = `${finalTranscriptRef.current} ${interimTranscript}`.replace(/\s+/g, ' ').trim();
+                transcriptRef.current = combinedText;
+                setTranscript(combinedText);
             }
         };
 
-        recognition.onerror = (event: any) => {
+        recognition.onerror = (event: RecognitionErrorLike) => {
             isStartingRef.current = false;
 
             if (event.error === 'not-allowed') {
@@ -127,9 +184,13 @@ export default function JoinClassPage() {
         if (!recognitionRef.current) return;
 
         if (isListening) {
+            setIsListening(false);
+            setSpeechText(INITIAL_SPEECH_TEXT);
             recognitionRef.current.stop();
         } else {
             transcriptRef.current = '';
+            finalTranscriptRef.current = '';
+            interimTranscriptRef.current = '';
             setTranscript('');
             safeStart();
         }
@@ -145,10 +206,25 @@ export default function JoinClassPage() {
         }
     };
 
+    useEffect(() => {
+        if (lastSpokenSpeechTextRef.current !== currentVoiceMessage) {
+            lastSpokenSpeechTextRef.current = currentVoiceMessage;
+            speakText(currentVoiceMessage);
+        }
+    }, [currentVoiceMessage]);
+
+    useEffect(() => {
+        return () => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+        };
+    }, []);
+
     // Handler Klik Layar: Klik Kiri = Mendengar (TTS), Klik Kanan = Merekam / Stop
-    const handleGlobalClick = (e: React.MouseEvent) => {
+    const handleGlobalClick = () => {
         // Mencegah trigger jika user klik elemen tertentu seperti toast
-        speakText(transcript || speechText);
+        speakText(isReasoning ? THINKING_SPEECH_TEXT : transcript || speechText);
     };
 
     const handleGlobalContextMenu = (e: React.MouseEvent) => {
@@ -186,9 +262,9 @@ export default function JoinClassPage() {
                     ></div>
 
                     {/* Gambar Maskot */}
-                    <div className="relative z-10 w-36 h-36 sm:w-48 sm:h-48 transition-all duration-300">
+                    <div className={`relative z-10 transition-all duration-300 ${isListening || isReasoning ? 'w-44 h-44 sm:w-56 sm:h-56' : 'w-36 h-36 sm:w-48 sm:h-48'}`}>
                         <Image
-                            src={isListening ? '/icons/Listening-Cat.svg' : isReasoning ? '/icons/Reasoning-Cat.svg' : '/icons/Logo.svg'}
+                            src={isListening ? '/icons/Listening-Cat.png' : isReasoning ? '/icons/Reasoning-Cat.png' : '/icons/Logo.svg'}
                             alt={isListening ? 'Kucing sedang mendengarkan' : isReasoning ? 'Kucing sedang berpikir' : 'Karakter Maskot'}
                             fill
                             unoptimized
@@ -228,7 +304,7 @@ export default function JoinClassPage() {
 
                         <div
                             aria-disabled={isReasoning}
-                            className={`w-28 h-28 sm:w-36 sm:h-36 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl ${isListening ? 'bg-red-500 text-white shadow-red-500/30' : isReasoning ? 'bg-amber-500/70 text-white/70 shadow-amber-500/20 cursor-not-allowed' : 'bg-blue-500 text-white shadow-blue-500/30'}`}
+                            className={`game-button ${statusColorClass} w-28 h-28 sm:w-36 sm:h-36 rounded-full flex items-center justify-center transition-all duration-300 ${isListening ? 'scale-105' : isReasoning ? 'opacity-90' : ''}`}
                         >
                             {isReasoning ? <Brain className="h-12 w-12 sm:h-16 sm:w-16 drop-shadow-md" strokeWidth={2.5} /> : <Mic className="h-12 w-12 sm:h-16 sm:w-16 drop-shadow-md" strokeWidth={2.5} />}
                         </div>

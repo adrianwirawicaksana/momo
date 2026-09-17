@@ -11,7 +11,6 @@ export default function ConditionalLayout({
 }) {
     const pathname = usePathname();
 
-    // Daftar route yang TIDAK ingin menampilkan Navbar & Footer
     const authRoutes = ["/login", "/register"];
     const isAuthPage = authRoutes.includes(pathname);
 
@@ -22,7 +21,7 @@ export default function ConditionalLayout({
     return (
         <>
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main className="min-h-0 flex-1">{children}</main>
             <Footer />
         </>
     );

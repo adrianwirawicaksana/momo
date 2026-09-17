@@ -16,23 +16,11 @@ export default function Home() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Inisialisasi Audio Objek
+  // Siapkan audio tanpa menjalankannya saat halaman baru dimuat.
   useEffect(() => {
     const audio = new Audio("/audio/Halo.mp3");
     audio.volume = 1.0;
     audioRef.current = audio;
-
-    const promise = audio.play();
-    if (promise !== undefined) {
-      promise
-        .then(() => {
-          setShowToast(false);
-          setHasInteracted(true);
-        })
-        .catch(() => {
-          // Menunggu interaksi dari pengguna
-        });
-    }
   }, []);
 
   // Handler Interaksi Pertama
@@ -100,6 +88,7 @@ export default function Home() {
             message={toastConfig.message}
             type={toastConfig.type}
             duration={0}
+            speakOnChange
             onClose={() => setShowToast(false)}
           />
         )}

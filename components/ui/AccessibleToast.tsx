@@ -12,6 +12,7 @@ interface AccessibleToastProps {
     onClose: () => void;
     audioUrl?: string;
     typingSpeed?: number;
+    speakOnChange?: boolean;
 }
 
 export default function AccessibleToast({
@@ -21,6 +22,7 @@ export default function AccessibleToast({
     onClose,
     audioUrl,
     typingSpeed = 35,
+    speakOnChange = false,
 }: AccessibleToastProps) {
     const [isExiting, setIsExiting] = useState(false);
     const [displayedText, setDisplayedText] = useState('');
@@ -67,6 +69,17 @@ export default function AccessibleToast({
         }
     }, [duration, audioUrl, isTyping]);
 
+    useEffect(() => {
+        if (!speakOnChange || typeof window === 'undefined' || !('speechSynthesis' in window) || !message) return;
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.lang = 'id-ID';
+        window.speechSynthesis.speak(utterance);
+
+        return () => window.speechSynthesis.cancel();
+    }, [message, speakOnChange]);
+
     const config = {
         success: {
             bgColor: 'bg-emerald-600',
@@ -97,9 +110,9 @@ export default function AccessibleToast({
             aria-live="assertive"
             lang="id"
             className={`
-        notranslate fixed bottom-4 left-1/2 z-50
-        w-fit max-w-[calc(100vw-1.5rem)] -translate-x-1/2
-        flex items-center justify-between gap-4 overflow-hidden rounded-2xl px-4 py-3.5 sm:bottom-6 sm:px-8 sm:py-5 lg:px-12 lg:py-6
+        notranslate fixed bottom-0 left-1/2 z-50
+        w-screen max-w-none -translate-x-1/2
+        flex items-center justify-between gap-4 overflow-hidden rounded-t-2xl px-4 py-3.5 sm:px-8 sm:py-5 lg:px-12 lg:py-6
         shadow-2xl border-t-4 sm:border-t-[6px]
         font-semibold
         font-[family-name:var(--font-fredoka)]
@@ -107,21 +120,21 @@ export default function AccessibleToast({
         ${isExiting ? 'animate-toast-out' : 'animate-toast-in'}
       `}
         >
-            <div className="flex w-fit max-w-full min-w-0 items-center justify-between gap-4 sm:gap-6">
+            <div className="mx-auto flex w-fit max-w-[calc(100vw-1.5rem)] min-w-0 items-center justify-between gap-4 sm:gap-6">
                 <div className="flex min-w-0 items-center gap-3.5 sm:gap-5">
                     {/* Logo Icon Responsif */}
                     <div className="relative w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 shrink-0 flex items-center justify-center">
                         <Image
-                            src="/icons/Logo.svg"
+                            src="/icons/Orange-Cat.svg"
                             alt="Logo"
-                            width={48}
-                            height={48}
+                            width={50}
+                            height={50}
                             className="w-full h-full object-contain"
                         />
                     </div>
 
                     {/* Teks Pesan - Responsif All Device */}
-                    <p className="min-w-0 max-w-full break-words leading-snug min-h-[1.5em] flex items-center whitespace-pre-line text-base sm:text-xl lg:text-2xl tracking-wide">
+                    <p className="min-w-0 max-w-full break-words leading-snug min-h-[1.5em] flex items-center whitespace-pre-line text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl tracking-wide">
                         <span className="break-words">{displayedText}</span>
                         {isTyping && (
                             <span className="inline-block w-2 sm:w-2.5 lg:w-3 h-4 sm:h-6 lg:h-7 ml-1 bg-white animate-pulse" />
@@ -133,7 +146,7 @@ export default function AccessibleToast({
                 <button
                     onClick={handleClose}
                     aria-label="Tutup pesan"
-                    className="
+                    className="plain-button
             p-1.5 sm:p-2.5 rounded-full shrink-0
             hover:bg-black/15 active:bg-black/25
             transition-colors duration-150 ease-in-out

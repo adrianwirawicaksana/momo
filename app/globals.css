@@ -51,11 +51,203 @@
   }
 }
 
+@layer components {
+  button {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  .game-button {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-width: 2px;
+    border-style: solid;
+    font-family: var(--font-fredoka), sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: transform 100ms ease-in-out, box-shadow 100ms ease-in-out, filter 150ms ease-in-out;
+  }
+
+  .game-button::before {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: -1;
+    height: 35%;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: rgb(255 255 255 / 25%);
+    content: '';
+    pointer-events: none;
+  }
+
+  .game-button::after {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent, rgb(255 255 255 / 40%), transparent);
+    content: '';
+    pointer-events: none;
+    transform: skewX(-25deg);
+    animation: shine 3s infinite ease-in-out;
+  }
+
+  .game-button:hover {
+    filter: brightness(1.08);
+  }
+
+  .game-button:active {
+    transform: translateY(4px);
+    box-shadow: none;
+  }
+
+  .game-button-blue {
+    border-color: #172554;
+    background: linear-gradient(to bottom, #60a5fa, #3b82f6, #2563eb) !important;
+    box-shadow: 0 5px 0 #1e3a8a !important;
+    color: white !important;
+  }
+
+  .game-button-yellow {
+    border-color: #78350f;
+    background: linear-gradient(to bottom, #fef08a, #facc15, #eab308) !important;
+    box-shadow: 0 8px 0 #78350f !important;
+    color: #1f2937 !important;
+  }
+
+  .game-button-danger {
+    border-color: #450a0a;
+    background: linear-gradient(to bottom, #fb7185, #e11d48, #be123c) !important;
+    box-shadow: 0 5px 0 #881337 !important;
+    color: white !important;
+  }
+
+  .game-button-red {
+    border-color: #7f1d1d;
+    background: linear-gradient(to bottom, #f87171, #ef4444, #dc2626) !important;
+    box-shadow: 0 8px 0 #7f1d1d !important;
+    color: white !important;
+  }
+
+  button:not(.plain-button):not([class~="text-left"]) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 2px solid #172554;
+    background: linear-gradient(to bottom, #60a5fa, #3b82f6, #2563eb) !important;
+    box-shadow: 0 5px 0 #1e3a8a !important;
+    color: white !important;
+    font-family: var(--font-fredoka), sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    transition: transform 100ms ease-in-out, box-shadow 100ms ease-in-out, filter 150ms ease-in-out;
+  }
+
+  button:not(.plain-button):not([class~="text-left"])::before,
+  button:not(.plain-button):not([class~="text-left"])::after {
+    position: absolute;
+    pointer-events: none;
+    content: '';
+  }
+
+  button:not(.plain-button):not([class~="text-left"])::before {
+    inset: 0 0 auto;
+    z-index: -1;
+    height: 35%;
+    border-radius: 0.75rem 0.75rem 0 0;
+    background: rgb(255 255 255 / 25%);
+  }
+
+  button:not(.plain-button):not([class~="text-left"])::after {
+    top: 0;
+    left: -100%;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(105deg, transparent, rgb(255 255 255 / 40%), transparent);
+    transform: skewX(-25deg);
+    animation: shine 3s infinite ease-in-out;
+  }
+
+  button:not(.plain-button):not([class~="text-left"]):hover {
+    filter: brightness(1.08);
+  }
+
+  button:not(.plain-button):not([class~="text-left"]):active {
+    transform: translateY(4px);
+    box-shadow: none !important;
+  }
+
+  button:not(.plain-button):not([class~="text-left"])[class*="bg-emerald-"],
+  button:not(.plain-button):not([class~="text-left"])[class*="bg-green-"] {
+    border-color: #451a03;
+    background: linear-gradient(to bottom, #fde047, #facc15, #eab308) !important;
+    box-shadow: 0 5px 0 #78350f !important;
+    color: #1f2937 !important;
+  }
+
+  button:not(.plain-button):not([class~="text-left"])[class*="bg-rose-"],
+  button:not(.plain-button):not([class~="text-left"])[class*="bg-red-"] {
+    border-color: #450a0a;
+    background: linear-gradient(to bottom, #fb7185, #e11d48, #be123c) !important;
+    box-shadow: 0 5px 0 #881337 !important;
+    color: white !important;
+  }
+
+  button:not(.plain-button):not([class~="text-left"]).game-button-yellow {
+    border-color: #451a03;
+    background: linear-gradient(to bottom, #fde047, #facc15, #eab308) !important;
+    box-shadow: 0 5px 0 #78350f !important;
+    color: #1f2937 !important;
+  }
+
+  button:not(.plain-button):not([class~="text-left"]).game-button-danger {
+    border-color: #450a0a;
+    background: linear-gradient(to bottom, #fb7185, #e11d48, #be123c) !important;
+    box-shadow: 0 5px 0 #881337 !important;
+    color: white !important;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-nunito), sans-serif;
   overflow-x: hidden;
+}
+
+@media print {
+  html,
+  body,
+  .material-print-content {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  .material-print-content details {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .material-print-content details > summary {
+    display: none !important;
+  }
+
+  .material-print-content details > div {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
 }
 
 @keyframes popup {

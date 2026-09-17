@@ -35,7 +35,7 @@ export function PdfUploadField({ file, maxSizeMb = 10, onFileChange, onRemove }:
             <button
                 type="button"
                 onClick={onRemove}
-                className="p-1 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-all"
+                className="plain-button p-1 text-slate-400 hover:text-red-400 rounded-lg hover:bg-slate-800 transition-all"
                 title="Hapus berkas"
             >
                 <X className="w-5 h-5" />
