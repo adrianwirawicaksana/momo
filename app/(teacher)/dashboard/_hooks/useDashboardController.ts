@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { createClass, deleteClass, getClassDetail, getClasses, removeModuleFromClass, updateClass, type ClassDetail, type ClassSummary, type UpdateClassPayload } from '@/api/kelas/route';
+import { createClass, deleteClass, getClassDetail, getClassProgress, getClasses, removeModuleFromClass, updateClass, type ClassDetail, type ClassProgressItem, type ClassSummary, type UpdateClassPayload } from '@/api/kelas/route';
 import { assignModuleToClass, createModule, deleteModule, getModuleDetail, getModuleQuestions, getModules, updateModule, uploadModuleMaterial, uploadModuleQuestions, type ModulMaterial, type ModulSoal, type ModulSummary } from '@/api/modul/route';
 import type { DashboardContentProps } from '../_components/DashboardContent';
 import type { DashboardTab, QuestionItem, QuestionType } from '../_components/types';
@@ -26,6 +26,8 @@ export function useDashboardController(activeTab: DashboardTab) {
     const [classDetail, setClassDetail] = useState<ClassDetail | null>(null);
     const [classDetails, setClassDetails] = useState<Record<number, ClassDetail>>({});
     const [isLoadingClass, setIsLoadingClass] = useState(false);
+    const [studentProgress, setStudentProgress] = useState<ClassProgressItem[]>([]);
+    const [progressSummary, setProgressSummary] = useState<{ totalStudents: number; averageScore: number; materiSelesai: number; studentsNeedingAttention: number; } | null>(null);
     const [isProcessingClass, setIsProcessingClass] = useState(false);
     const [isCreatingClass, setIsCreatingClass] = useState(false);
     const [materiPdfFile, setMateriPdfFile] = useState<File | null>(null);
@@ -69,10 +71,37 @@ export function useDashboardController(activeTab: DashboardTab) {
         setIsLoadingClass(true);
         try {
             const detail = await fetchClassDetail(id, token);
-            setClassDetail(detail); setClassDetails((current) => ({ ...current, [detail.id]: detail })); setClassId(detail.id);
+            const progressResponse = await getClassProgress(id, token);
+
+            const normalizedProgress = Array.isArray(progressResponse)
+                ? progressResponse
+                : progressResponse.siswa.map((student) => ({
+                    siswa_id: student.siswa_id,
+                    nama: student.nama,
+                    jumlah_soal_dijawab: student.soal_dikerjakan,
+                    jumlah_benar: Math.round((student.soal_dikerjakan * student.nilai_rata) / 100),
+                    skor_persen: Number(student.nilai_rata ?? 0),
+                }));
+
+            const summary = Array.isArray(progressResponse)
+                ? null
+                : {
+                    totalStudents: progressResponse.ringkasan.total_siswa,
+                    averageScore: progressResponse.ringkasan.rata_nilai,
+                    materiSelesai: progressResponse.ringkasan.materi_selesai,
+                    studentsNeedingAttention: progressResponse.ringkasan.perlu_perhatian,
+                };
+
+            setClassDetail(detail);
+            setClassDetails((current) => ({ ...current, [detail.id]: detail }));
+            setClassId(detail.id);
+            setStudentProgress(normalizedProgress);
+            setProgressSummary(summary);
         } catch (error) {
             const message = axios.isAxiosError(error) ? error.response?.data?.message || error.response?.data?.error : undefined;
             toast.error(message || 'Detail kelas gagal dimuat.');
+            setStudentProgress([]);
+            setProgressSummary(null);
         } finally { setIsLoadingClass(false); }
     }, [fetchClassDetail]);
 
@@ -93,7 +122,7 @@ export function useDashboardController(activeTab: DashboardTab) {
         navigator.clipboard.writeText(code); toast.success('Kode kelas disalin ke clipboard!');
     };
     const handleClassChange = (id: number) => {
-        setClassId(id); setClassDetail(null); window.localStorage.setItem('active_class_id', String(id));
+        setClassId(id); setClassDetail(null); setStudentProgress([]); setProgressSummary(null); window.localStorage.setItem('active_class_id', String(id));
     };
     const getErrorMessage = (error: unknown) => axios.isAxiosError(error) ? error.response?.data?.message || error.response?.data?.error : undefined;
 
@@ -214,7 +243,7 @@ export function useDashboardController(activeTab: DashboardTab) {
     useEffect(() => { if (activeTab !== 'kelola-kelas' || availableClasses.length === 0) return; const timeoutId = window.setTimeout(() => void loadAllClassDetails(availableClasses), 0); return () => window.clearTimeout(timeoutId); }, [activeTab, availableClasses, loadAllClassDetails]);
 
     const contentProps: ControllerProps = {
-        classes: availableClasses, classDetails, modules: availableModules, selectedClassId: classId, classDetail, isLoadingClass, isProcessingClass, isCreatingClass,
+        classes: availableClasses, classDetails, modules: availableModules, selectedClassId: classId, classDetail, studentProgress, progressSummary, isLoadingClass, isProcessingClass, isCreatingClass,
         generatedClassCode, generatedClassName, generatedSubject, className, subject, moduleClassId, moduleName, moduleDescription, materiModuleId, materiPdfFile,
         isGeneratingMateri, isSavingMateri, generatedMateri, materiModuleName: availableModules.find((module) => module.id === materiModuleId)?.nama || 'Modul', soalModuleId, soalPdfFile,
         questionType, isGeneratingSoal, generatedQuestions, onClassChange: handleClassChange, onUpdateClass: handleUpdateClass, onDeleteClass: handleDeleteClass,

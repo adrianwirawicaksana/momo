@@ -34,6 +34,38 @@ export interface ClassStudent {
   created_at: string;
 }
 
+export interface ClassProgressItem {
+  siswa_id: number;
+  nama: string;
+  jumlah_soal_dijawab: number;
+  jumlah_benar: number;
+  skor_persen: number;
+}
+
+export interface ClassProgressRingkasan {
+  total_siswa: number;
+  rata_nilai: number;
+  materi_selesai: number;
+  perlu_perhatian: number;
+}
+
+export interface ClassProgressStudent {
+  siswa_id: number;
+  nama: string;
+  progress_materi: string;
+  persen_materi: number;
+  materi_selesai: number;
+  soal_dikerjakan: number;
+  nilai_rata: number;
+  aktivitas_terakhir: string;
+  status: 'aman' | 'perlu_perhatian' | 'belum_aktif';
+}
+
+export interface ClassProgressResponse {
+  ringkasan: ClassProgressRingkasan;
+  siswa: ClassProgressStudent[];
+}
+
 export interface ClassModule {
   id: number;
   guru_id: number;
@@ -126,6 +158,44 @@ export const deleteClass = async (classId: number, token: string): Promise<void>
   await apiClient.delete(`/api/v1/kelas/${classId}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+};
+
+export const getClassProgress = async (
+  classId: number,
+  token: string,
+  modulId?: number,
+  jenis?: string,
+): Promise<ClassProgressResponse | ClassProgressItem[]> => {
+  const params = new URLSearchParams();
+  if (modulId) params.set('modul_id', String(modulId));
+  if (jenis) params.set('jenis', jenis);
+
+  const query = params.toString();
+  const endpoint = `/api/v1/kelas/${classId}/progress`;
+
+  try {
+    const response = await apiClient.get<ClassProgressResponse>(endpoint, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.data && Array.isArray(response.data.siswa)) {
+      return response.data;
+    }
+  } catch {
+    if (modulId || jenis) {
+      const fallbackResponse = await apiClient.get<ClassProgressItem[] | { data?: ClassProgressItem[] }>(`/api/v1/kelas/${classId}/nilai${query ? `?${query}` : ''}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = Array.isArray(fallbackResponse.data) ? fallbackResponse.data : fallbackResponse.data?.data;
+      return Array.isArray(data) ? data : [];
+    }
+  }
+
+  const fallbackResponse = await apiClient.get<ClassProgressItem[] | { data?: ClassProgressItem[] }>(`/api/v1/kelas/${classId}/nilai${query ? `?${query}` : ''}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = Array.isArray(fallbackResponse.data) ? fallbackResponse.data : fallbackResponse.data?.data;
+  return Array.isArray(data) ? data : [];
 };
 
 export const removeModuleFromClass = async (

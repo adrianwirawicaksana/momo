@@ -63,7 +63,7 @@ export function StudentProgress({ data, classes, selectedClassId, isLoadingClass
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <SummaryCard label="Total Siswa" value={data?.totalStudents?.toString() ?? '-'} detail={hasData ? 'siswa aktif' : 'Data belum tersedia'} icon={BookOpenCheck} iconColor="text-blue-400" />
                 <SummaryCard label="Rata-rata Nilai" value={data?.averageScore?.toString() ?? '-'} detail={hasData ? 'hasil evaluasi kelas' : 'Data belum tersedia'} icon={TrendingUp} iconColor="text-emerald-400" />
-                <SummaryCard label="Materi Selesai" value={data?.completionRate !== undefined ? `${data.completionRate}%` : '-'} detail={hasData ? 'dari seluruh kelas' : 'Data belum tersedia'} icon={CheckCircle2} iconColor="text-cyan-400" />
+                <SummaryCard label="Materi Selesai" value={data?.completionRate !== undefined ? `${data.completionRate}` : '-'} detail={hasData ? 'total materi selesai' : 'Data belum tersedia'} icon={CheckCircle2} iconColor="text-cyan-400" />
                 <SummaryCard label="Perlu Perhatian" value={data?.studentsNeedingAttention?.toString() ?? '-'} detail={hasData ? 'siswa perlu pendampingan' : 'Data belum tersedia'} icon={Clock3} iconColor="text-amber-400" />
             </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { ClassDetail, ClassSummary, UpdateClassPayload } from '@/api/kelas/route';
+import type { ClassDetail, ClassProgressItem, ClassSummary, UpdateClassPayload } from '@/api/kelas/route';
 import type { ModulMaterial, ModulSummary } from '@/api/modul/route';
 import { ClassCreator } from './ClassCreator';
 import { ClassList } from './ClassList';
@@ -39,6 +39,13 @@ export interface DashboardContentProps {
     questionType: QuestionType;
     isGeneratingSoal: boolean;
     generatedQuestions: QuestionItem[];
+    studentProgress: ClassProgressItem[];
+    progressSummary?: {
+        totalStudents: number;
+        averageScore: number;
+        materiSelesai: number;
+        studentsNeedingAttention: number;
+    } | null;
     onClassChange: (id: number) => void;
     onUpdateClass: (id: number, payload: UpdateClassPayload) => Promise<void>;
     onDeleteClass: (id: number) => Promise<void>;
@@ -73,6 +80,8 @@ export function DashboardContent({
     modules,
     selectedClassId,
     classDetail,
+    studentProgress,
+    progressSummary,
     isLoadingClass,
     isProcessingClass,
     isCreatingClass,
@@ -121,19 +130,41 @@ export function DashboardContent({
     onSaveSoal,
     onDownloadSoal,
 }: DashboardContentProps) {
-    const progressData = classDetail ? {
-        className: classDetail.nama_kelas,
-        period: isLoadingClass ? 'Memuat...' : 'Data kelas terbaru',
-        students: (classDetail.siswa ?? []).map((student) => ({
+    const mappedStudentProgress = studentProgress.map((student) => {
+        const score = Number(student.skor_persen ?? 0);
+        const progressValue = Math.min(100, Math.max(0, score));
+        const status: 'Sangat Baik' | 'Berkembang' | 'Perlu Pendampingan' = score >= 80 ? 'Sangat Baik' : score >= 60 ? 'Berkembang' : 'Perlu Pendampingan';
+
+        return {
             name: student.nama,
             initials: student.nama.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase(),
-            progress: 0,
-            score: 0,
-            completed: 'Data progress belum tersedia',
-            lastActivity: student.created_at ? new Date(student.created_at).toLocaleDateString('id-ID') : '-',
-            status: 'Perlu Pendampingan' as const,
-        })),
-        totalStudents: classDetail.siswa.length,
+            progress: progressValue,
+            score,
+            completed: student.jumlah_soal_dijawab > 0 ? `${student.jumlah_soal_dijawab} soal dijawab • ${student.jumlah_benar} benar` : 'Belum ada jawaban',
+            lastActivity: 'Baru-baru ini',
+            status,
+        };
+    });
+
+    const fallbackStudents = (classDetail?.siswa ?? []).map((student) => ({
+        name: student.nama,
+        initials: student.nama.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase(),
+        progress: 0,
+        score: 0,
+        completed: 'Data progress belum tersedia',
+        lastActivity: student.created_at ? new Date(student.created_at).toLocaleDateString('id-ID') : '-',
+        status: 'Perlu Pendampingan' as const,
+    }));
+
+    const progressData = classDetail ? {
+        className: classDetail.nama_kelas,
+        period: isLoadingClass ? 'Memuat...' : classDetail.modul.length > 0 ? `Modul: ${classDetail.modul[0]?.nama ?? classDetail.modul[0]?.judul ?? 'Aktif'}` : 'Belum ada modul',
+        students: studentProgress.length > 0 ? mappedStudentProgress : fallbackStudents,
+        totalStudents: progressSummary?.totalStudents ?? classDetail.siswa.length,
+        averageScore: progressSummary?.averageScore ?? (studentProgress.length > 0 ? Math.round(studentProgress.reduce((sum, student) => sum + Number(student.skor_persen ?? 0), 0) / studentProgress.length) : undefined),
+        completionRate: progressSummary?.materiSelesai ?? (studentProgress.length > 0 ? Math.round((studentProgress.filter((student) => student.jumlah_soal_dijawab > 0).length / studentProgress.length) * 100) : undefined),
+        studentsNeedingAttention: progressSummary?.studentsNeedingAttention ?? (studentProgress.length > 0 ? studentProgress.filter((student) => Number(student.skor_persen ?? 0) < 60).length : undefined),
+        target: 80,
     } : null;
 
     if (activeTab === 'materi') {
